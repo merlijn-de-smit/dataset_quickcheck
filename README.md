@@ -18,6 +18,8 @@ numpy
 
 Extract the directory wherever you want. 
 
+Create an empty directory called **input** in the same location as the file. 
+
 Place the CSV you want to check in the "input" directory. Please have only one CSV there at a time, and do not have the file open in another program while running this. (You can however quickly open and close the file once the script has started).
 
 You will be able to specify any separator, including tab, while loading the file.
