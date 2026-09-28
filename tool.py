@@ -4,6 +4,7 @@ import csv
 import os
 import io
 import numpy as np
+import datetime
 
 if 'stage' not in st.session_state:
     st.session_state.stage = 0
@@ -40,7 +41,9 @@ if st.session_state.stage > 1:
         df=pd.read_csv(actualcsv)
     columnnames=list(df.columns.values)
     st.write("File loaded correctly!")
-    st.write("Column names are:", columnnames)
+    st.write("Column names are:")
+    for column in columnnames:
+        st.write(column)
     #Date/time column needs to be identified separately in order to process it by lowest and highest values. 
     datetimecol=st.text_input("Does the dataset contain a column with a date/time value? If so, enter its name here. Otherwise, write 'no'.")
     #Identifier column is identified separately in order to display a warning message if the column contains non-unique values
@@ -160,7 +163,33 @@ if st.session_state.stage > 6:
                     xs=bxs[0:4]
                     if bxs[4]>((sum(xs)/4)*5):
                         st.write("**Warning**: highest value is much higher than the other ones.")
-        st.write("--")
+    st.button("**Output a codebook .txt file**", on_click=set_stage, args=(8,))
+    st.write("This will write a .txt file with information about variables and observations. You can use it to create a codebook or a data description. The file will be saved in the same location as the python tool.")
+    st.write("--")
+if st.session_state.stage > 7:
+    df.replace('',np.nan, regex=True, inplace=True)
+    file_path=os.path.join(mypath, item)
+    stat_info=os.stat(file_path)
+    file_size = stat_info.st_size   
+    mod_time_timestamp = stat_info.st_mtime
+    mod_time = datetime.datetime.fromtimestamp(mod_time_timestamp)
+    with open("codebook.txt", "w") as codebook:
+        codebook.write("File name is: "+ item+ "\n")
+        codebook.write("\n")
+        codebook.write(f"File Size: {file_size} bytes"+"\n")
+        codebook.write(f"Last Modified: {mod_time.strftime('%Y-%m-%d %H:%M:%S')}"+"\n")
+        codebook.write("\n")
+        codebook.write("Number of variable colums: "+str(len(columnnames))+ "\n")
+        codebook.write("Number of rows: "+str(df.shape[0])+ "\n")
+        codebook.write("\n")
+        codebook.write("Variables:\n")
+        codebook.write("\n")
+        i=0
+        for column in df:
+            result=df[column].count()
+            codebook.write("'"+columnnames[i]+"'"+ " --- Number of non-null observations: "+ str(result)+ "\n")
+            i=i+1        
+    st.write("--")
     st.write("**Finished**")
         
     
