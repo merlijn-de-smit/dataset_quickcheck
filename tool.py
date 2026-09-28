@@ -19,8 +19,8 @@ mypath=os.path.join(os.path.dirname(__file__),'input')
 dirlist=os.listdir(mypath)
 
 #Lists the files in the directory. The first one (preferably the only one) can be selected.
-for item in dirlist:
-    st.write("File in directory:", item)
+for filename in dirlist:
+    st.write("File in directory:", filename)
 if len(dirlist)>1:
     st.write("Multiple files in directory. You can only select the first one. You can remove the other ones and restart this app. Please make sure that the file you want to have checked is not open in another application. If so, close the application and restart this app.")
 st.write("Do you want to load the first file in the list?")
@@ -168,13 +168,13 @@ if st.session_state.stage > 6:
     st.write("--")
 if st.session_state.stage > 7:
     df.replace('',np.nan, regex=True, inplace=True)
-    file_path=os.path.join(mypath, item)
+    file_path=os.path.join(mypath, filename)
     stat_info=os.stat(file_path)
     file_size = stat_info.st_size   
     mod_time_timestamp = stat_info.st_mtime
     mod_time = datetime.datetime.fromtimestamp(mod_time_timestamp)
     with open("codebook.txt", "w") as codebook:
-        codebook.write("File name is: "+ item+ "\n")
+        codebook.write("File name is: "+ filename+ "\n")
         codebook.write("\n")
         codebook.write(f"File Size: {file_size} bytes"+"\n")
         codebook.write(f"Last Modified: {mod_time.strftime('%Y-%m-%d %H:%M:%S')}"+"\n")
