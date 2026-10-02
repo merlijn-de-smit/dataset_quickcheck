@@ -64,7 +64,8 @@ with placeholder.container():
 if st.session_state.stage > 2:
     emptyrows=st.sidebar.button("Check for empty rows")
     mixedvalues=st.sidebar.button("Check for mixed data types")
-    duplicates=st.sidebar.button("Check for duplicates")
+    duplicates=st.sidebar.button("Check for duplicate rows")
+    duplicateval=st.sidebar.button("Check for adjacent duplicate values")
     unique=st.sidebar.button("Check for unique values")
     outliers=st.sidebar.button("Check for outliers")
     export=st.sidebar.button("Export a codebook file")
@@ -82,6 +83,15 @@ if st.session_state.stage > 2:
                 st.write(item)
         else:
             st.write("No empty rows found in dataset!")
+        #The following script returns a warning if a row has more than 50% empty values.
+        for i in df.index.values:
+            templist=df.loc[i,:].values.tolist()
+            c=0
+            for value in templist:
+                if (value==value)==False:
+                    c=c+1
+            if c > (len(templist)/2):
+                st.write("Row ", (i+2), "has more than 50% empty values. Please check this.")
 
     if mixedvalues:
         placeholder.empty()
@@ -105,6 +115,16 @@ if st.session_state.stage > 2:
             st.write("Duplicates found:", duplicates)
         else:
             st.write("No duplicate rows in dataset!")
+            
+    if duplicateval:
+        placeholder.empty()
+        st.write("This will check for duplicate values adjacent across columns in order to identify possible data entry errors. The value '0' will be ignored. Duplicate adjacent values may be innocuous - adjacent values of '0.1' across columns depicting very similar measurements are unremarkable. But adjacent values of say '0.6459' across two very different columns may demand attention!")
+        listexclude=[0, 0.0, "0", "0.0"]
+        for i in df.index.values:
+            templist=df.loc[i,:].values.tolist()
+            for c in range(1, len(templist)):
+                if templist[c]==templist[c-1] and templist[c] not in listexclude:
+                    st.write("Row ", (i+2), "has adjacent duplicate values: ", templist[c]," ",templist[c-1])
         
 #Check for the proportion of unique values in each column. The script will report if there are no unique values (empty column), if an identifying column has non-unique values (likely duplicate row)
 #and if the proportion of unique values is very high but not 100% (this is often not an error but may indicate one if the column is meant to be identifying).
@@ -188,12 +208,12 @@ if st.session_state.stage > 2:
         st.write("This will write a .txt file with information about variables and observations. You can use it to create a codebook or a data description. The file will be saved in the same location as the python tool.")
         st.write("--")
         df.replace('',np.nan, regex=True, inplace=True)
-        file_path=os.path.join(path, filename)
-        stat_info=os.stat(path)
+        #file_path=os.path.join(path)
+        #stat_info=os.stat(file_path)
         bytes_data=actualcsv.getvalue()
         file_size = len(bytes_data)
-        mod_time_timestamp = stat_info.st_mtime
-        mod_time = datetime.datetime.fromtimestamp(mod_time_timestamp)
+        #mod_time_timestamp = stat_info.st_mtime
+        #mod_time = datetime.datetime.fromtimestamp(mod_time_timestamp)
         with open("codebook.txt", "w") as codebook:
             codebook.write("File name is: "+ filename+ "\n")
             codebook.write("\n")
